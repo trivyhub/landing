@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trivyhub-landing
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trivyhub-landing
+  namespace: trivyhub-landing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trivyhub-landing
+  template:
+    metadata:
+      labels:
+        app: trivyhub-landing
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/trivyhub/landing:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trivyhub-landing
+  namespace: trivyhub-landing
+spec:
+  selector:
+    app: trivyhub-landing
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: trivyhub-landing
+  namespace: trivyhub-landing
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`www.trivyhub.fr`)
+      kind: Rule
+      services:
+        - name: trivyhub-landing
+          port: 3000
+  tls:
+    certResolver: letsencrypt
