@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+}
+
 :root {
   --bg: #08080b;
   --surface: #111114;
@@ -19,11 +24,12 @@
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  margin: 0;
 }
