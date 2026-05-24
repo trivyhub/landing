@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/trivyhub/landing:latest
+          image: ghcr.io/trivyhub/landing:c326d09d75aa31d6e04b0fef3e6b7e0881d768e5
           ports:
             - containerPort: 3000
           resources:
