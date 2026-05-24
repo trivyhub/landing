@@ -8,8 +8,10 @@ import {
   useInView,
   useMotionValue,
   useSpring,
-  AnimatePresence,
 } from "framer-motion";
+import { HexagonPattern } from "@/components/ui/hexagon-pattern";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { CodeBlock, CodeBlockCode, CodeBlockGroup, CopyButton } from "@/components/ui/code-block";
 
 function cn(...classes: (string | undefined | false)[]) {
   return classes.filter(Boolean).join(" ");
@@ -27,21 +29,6 @@ function NoiseOverlay() {
   );
 }
 
-function GridLines() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
-      />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, #08080b 100%)" }} />
-    </div>
-  );
-}
 
 function Orb({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -89,35 +76,6 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BentoCard({ children, className, glow = false }: { children: React.ReactNode; className?: string; glow?: boolean }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <motion.div
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={cn("relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6", className)}
-      style={{
-        boxShadow: hovered ? (glow ? "0 0 40px -10px oklch(0.86 0.18 130 / 0.25), 0 16px 40px rgba(0,0,0,0.4)" : "0 16px 40px rgba(0,0,0,0.4)") : "0 4px 16px rgba(0,0,0,0.2)",
-        transition: "box-shadow 0.3s ease",
-      }}
-    >
-      <AnimatePresence>
-        {hovered && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="pointer-events-none absolute inset-0 rounded-2xl"
-            style={{ background: "radial-gradient(circle at 50% 0%, oklch(0.86 0.18 130 / 0.06), transparent 70%)" }}
-          />
-        )}
-      </AnimatePresence>
-      {children}
-    </motion.div>
-  );
-}
 
 // ─── Nav ─────────────────────────────────────────────────────────────────────
 
@@ -186,7 +144,14 @@ function Hero() {
 
   return (
     <section ref={containerRef} className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-16" id="hero">
-      <GridLines />
+      <HexagonPattern
+        radius={38}
+        gap={6}
+        direction="horizontal"
+        className="opacity-[0.18] stroke-gray-400/45"
+        hexagons={[[2,1],[5,3],[8,1],[11,3],[3,5],[7,5],[10,2]]}
+      />
+      <div className="pointer-events-none absolute inset-0" aria-hidden style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, #08080b 100%)" }} />
       <NoiseOverlay />
       <motion.div style={{ x: orbX, y: orbY }} className="pointer-events-none absolute inset-0">
         <Orb className="h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2" style={{ left: "30%", top: "35%", background: "oklch(0.86 0.18 130 / 0.12)" }} />
@@ -262,37 +227,184 @@ function Hero() {
 
 // ─── Features ─────────────────────────────────────────────────────────────────
 
-const FEATURES = [
-  { label: "Real-time scanning", color: "var(--accent)", title: "CVEs ranked by impact", body: "Triage faster with severity-ordered results and direct fix versions — no noise." },
-  { label: "Analytics", color: "var(--sev-high)", title: "Trend analysis", body: "Weekly breakdown of critical and high-severity findings across all your projects." },
-  { label: "Integrations", color: "var(--violet)", title: "One-line CI integration", body: "GitHub Actions, GitLab CI, Jenkins — add a single curl call to your pipeline and you're done." },
-  { label: "Multi-project", color: "var(--accent)", title: "Projects & environments", body: "Organize scans by project and environment (production, staging) with role-based access." },
-  { label: "Scan history", color: "var(--sev-high)", title: "Full scan timeline", body: "CVE evolution chart, diff vs previous scan, branch and commit context for every run." },
-  { label: "API Keys", color: "var(--violet)", title: "Secure API access", body: "Create, copy and revoke API keys per project. Integrate from any CI system." },
-];
-
 function Features() {
   return (
     <section className="relative overflow-hidden py-24 px-6" id="features">
       <div className="mx-auto max-w-6xl">
-        <FadeIn className="mb-16 text-center">
-          <Pill>Features</Pill>
-          <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--fg)" }}>
-            Everything you need<br />
-            <span style={{ color: "var(--fg-muted)" }}>to stay ahead of threats</span>
+        <FadeIn className="mb-14">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em]" style={{ color: "var(--accent)" }}>Features</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--fg)" }}>
+            Everything in one place
           </h2>
         </FadeIn>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <FadeIn key={f.title} delay={i * 0.08} direction="up">
-              <BentoCard glow={i === 0} className="h-full">
-                <p className="text-xs font-medium uppercase tracking-widest" style={{ color: f.color }}>{f.label}</p>
-                <h3 className="mt-2 text-xl font-semibold" style={{ color: "var(--fg)" }}>{f.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>{f.body}</p>
-              </BentoCard>
+
+        {/* Bento grid */}
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Large card — hero feature */}
+          <FadeIn className="md:col-span-2 list-none" direction="none">
+            <li className="min-h-[14rem] list-none h-full">
+              <div className="relative h-full rounded-2xl border border-white/10 p-2 md:rounded-3xl md:p-3" style={{ background: "var(--surface)" }}>
+                <GlowingEffect blur={0} borderWidth={3} spread={80} glow proximity={64} inactiveZone={0.01} disabled={false} />
+                <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]" style={{ background: "var(--bg)" }}>
+                  <div>
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-medium" style={{ borderColor: "var(--accent-dim)", color: "var(--accent)", background: "oklch(0.86 0.18 130 / 0.06)" }}>
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                      Real-time
+                    </div>
+                    <h3 className="text-2xl font-semibold leading-snug" style={{ color: "var(--fg)" }}>CVEs ranked by severity,<br />fix versions inline</h3>
+                    <p className="mt-3 max-w-sm text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>
+                      Stop hunting through JSON. Critical CVEs bubble to the top, patched versions shown next to each finding. Triage in seconds, not hours.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    {["CRITICAL", "HIGH", "MEDIUM"].map((sev, i) => (
+                      <div key={sev} className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-mono font-medium" style={{
+                        borderColor: i === 0 ? "rgba(239,68,68,0.3)" : i === 1 ? "rgba(249,115,22,0.3)" : "rgba(234,179,8,0.3)",
+                        color: i === 0 ? "#f87171" : i === 1 ? "#fb923c" : "#fbbf24",
+                        background: i === 0 ? "rgba(239,68,68,0.06)" : i === 1 ? "rgba(249,115,22,0.06)" : "rgba(234,179,8,0.06)",
+                      }}>
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
+                        {sev}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </li>
+          </FadeIn>
+
+          {/* CI integration card */}
+          <FadeIn direction="none" delay={0.05} className="list-none">
+            <li className="min-h-[14rem] list-none h-full">
+              <div className="relative h-full rounded-2xl border border-white/10 p-2 md:rounded-3xl md:p-3" style={{ background: "var(--surface)" }}>
+                <GlowingEffect blur={0} borderWidth={3} spread={80} glow proximity={64} inactiveZone={0.01} disabled={false} />
+                <div className="relative flex h-full flex-col gap-3 overflow-hidden rounded-xl p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]" style={{ background: "var(--bg)" }}>
+                  <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--violet)" }}>Integrations</p>
+                  <h3 className="text-xl font-semibold" style={{ color: "var(--fg)" }}>One curl.<br />Any CI system.</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>GitHub Actions, GitLab CI, Jenkins, CircleCI — one command.</p>
+                  <div className="mt-2 flex-1 rounded-xl border p-4 font-mono text-[11px] leading-relaxed" style={{ borderColor: "var(--border-bright)", background: "var(--surface)", color: "var(--fg-muted)" }}>
+                    <span style={{ color: "var(--fg-dim)" }}>$</span>{" "}
+                    <span style={{ color: "var(--accent)" }}>curl</span> -X POST \<br />
+                    {"  "}-H <span style={{ color: "#fbbf24" }}>"Authorization: Bearer $TOKEN"</span> \<br />
+                    {"  "}-F <span style={{ color: "#fbbf24" }}>"file=@report.json"</span> \<br />
+                    {"  "}/api/v1/report
+                  </div>
+                </div>
+              </div>
+            </li>
+          </FadeIn>
+
+          {/* 4 small cards */}
+          {[
+            { tag: "Analytics", color: "var(--sev-high)", title: "Trend charts", body: "Weekly CVE evolution across all projects and environments." },
+            { tag: "Multi-project", color: "var(--accent)", title: "Environments", body: "Production, staging, per-branch — organized and role-gated." },
+            { tag: "Scan history", color: "var(--sev-high)", title: "Full timeline", body: "Diff vs previous scan. Branch and commit context every run." },
+            { tag: "API Keys", color: "var(--violet)", title: "Per-project keys", body: "Create, copy, revoke. One key per project, never shared." },
+          ].map((f, i) => (
+            <FadeIn key={f.title} delay={0.08 + i * 0.06} direction="none" className="list-none">
+              <li className="min-h-[10rem] list-none">
+                <div className="relative h-full rounded-2xl border border-white/10 p-2 md:rounded-3xl md:p-3" style={{ background: "var(--surface)" }}>
+                  <GlowingEffect blur={0} borderWidth={3} spread={80} glow proximity={64} inactiveZone={0.01} disabled={false} />
+                  <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-xl p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]" style={{ background: "var(--bg)" }}>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: f.color }}>{f.tag}</p>
+                    <div>
+                      <h3 className="text-base font-semibold" style={{ color: "var(--fg)" }}>{f.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>{f.body}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
             </FadeIn>
           ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+
+function Security() {
+  return (
+    <section className="relative overflow-hidden border-t py-24 px-6" style={{ borderColor: "var(--border)" }} id="security">
+      <HexagonPattern
+        radius={32}
+        gap={8}
+        direction="vertical"
+        className="opacity-[0.04] stroke-emerald-400/20 fill-none"
+      />
+
+      <div className="relative mx-auto max-w-6xl">
+        {/* Header row */}
+        <div className="mb-14 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <FadeIn>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em]" style={{ color: "var(--accent)" }}>Security-first</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--fg)" }}>
+              Your data never<br />leaves your network
+            </h2>
+          </FadeIn>
+          <FadeIn delay={0.1} className="max-w-sm">
+            <p className="text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>
+              TrivyHub is self-hosted by design. No telemetry, no SaaS callbacks, no surprises. MIT licensed.
+            </p>
+          </FadeIn>
         </div>
+
+        {/* Feature grid — GridItem pattern */}
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {[
+            {
+              tag: "Zero-trust",
+              title: "API keys scoped per project",
+              body: "JWT-authenticated endpoints. Keys can be revoked individually. No shared secrets between projects.",
+              icon: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
+              accent: "var(--accent)",
+            },
+            {
+              tag: "CVE traceability",
+              title: "Every vuln linked to NVD + CVSS",
+              body: "Direct link to the CVE entry, CVSS score, affected versions, and the upstream patch. Full audit trail.",
+              icon: <><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35M11 8v3l2 2" /></>,
+              accent: "var(--violet)",
+            },
+            {
+              tag: "Air-gapped",
+              title: "Runs fully offline",
+              body: "SQLite or PostgreSQL — your choice. Works inside a VPN, a private cluster, or a full air-gap. No internet required.",
+              icon: <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>,
+              accent: "var(--accent)",
+            },
+            {
+              tag: "Severity ranking",
+              title: "Critical first, noise filtered",
+              body: "CRITICAL and HIGH CVEs always on top. Fix versions shown inline. Diff vs previous scan on every push.",
+              icon: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />,
+              accent: "var(--violet)",
+            },
+          ].map((f, i) => (
+            <FadeIn key={f.title} delay={0.1 + i * 0.07} direction="none">
+              <li className="min-h-[10rem] list-none">
+                <div className="relative h-full rounded-2xl border border-white/10 p-2 md:rounded-3xl md:p-3" style={{ background: "var(--surface)" }}>
+                  <GlowingEffect blur={0} borderWidth={3} spread={80} glow proximity={64} inactiveZone={0.01} disabled={false} />
+                  <div className="relative flex h-full gap-5 overflow-hidden rounded-xl p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]" style={{ background: "var(--bg)" }}>
+                    <div className="mt-0.5 shrink-0">
+                      <div className="rounded-lg border border-white/10 p-2" style={{ background: "var(--surface)" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={f.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          {f.icon}
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: f.accent }}>{f.tag}</p>
+                      <h3 className="mt-1 text-base font-semibold leading-snug" style={{ color: "var(--fg)" }}>{f.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>{f.body}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </FadeIn>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -300,19 +412,15 @@ function Features() {
 
 // ─── Install ──────────────────────────────────────────────────────────────────
 
-function CodeBlock({ label, code }: { label: string; code: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+function TrivyCodeBlock({ label, code }: { label: string; code: string }) {
   return (
-    <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border-bright)", background: "var(--surface)" }}>
-      <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
+    <CodeBlock>
+      <CodeBlockGroup className="border-b px-4 py-2.5" style={{ borderColor: "var(--border)" }}>
         <span className="font-mono text-xs" style={{ color: "var(--fg-dim)" }}>{label}</span>
-        <button onClick={copy} className="text-xs transition-colors" style={{ color: copied ? "var(--accent)" : "var(--fg-dim)" }}>
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <pre className="overflow-x-auto p-4 font-mono text-xs leading-loose" style={{ color: "var(--fg-muted)" }}>{code}</pre>
-    </div>
+        <CopyButton code={code} />
+      </CodeBlockGroup>
+      <CodeBlockCode code={code} language="bash" theme="github-dark" />
+    </CodeBlock>
   );
 }
 
@@ -382,13 +490,13 @@ function Install() {
               </button>
             ))}
           </div>
-          <CodeBlock label={active.label} code={active.code} />
+          <TrivyCodeBlock label={active.label} code={active.code} />
           <p className="mt-3 text-sm" style={{ color: "var(--fg-dim)" }}>{active.note}</p>
         </FadeIn>
 
         <FadeIn delay={0.2} className="mt-16">
           <h3 className="mb-4 text-lg font-semibold" style={{ color: "var(--fg)" }}>Push scan results from CI</h3>
-          <CodeBlock
+          <TrivyCodeBlock
             label=".github/workflows/scan.yml"
             code={`- name: Trivy scan
   run: trivy image --format json --output report.json $IMAGE
@@ -520,6 +628,7 @@ export default function LandingPage() {
       <main>
         <Hero />
         <Features />
+        <Security />
         <Install />
         <HowItWorks />
         <CTA />
